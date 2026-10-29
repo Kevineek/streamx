@@ -1,43 +1,37 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
-// 1. Registrácia
-export async function handleSignUp(email, password, name) {
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+export async function signUpUser(email: any, password: any, name: any) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: { name, role: 'user' } // predvolená rola je user
-    }
-  });
-  return { data, error };
+      data: { name },
+    },
+  })
+  return { data, error }
 }
 
-// 2. Prihlásenie
-export async function handleSignIn(email, password) {
+export async function signInUser(email: any, password: any) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
-    password
-  });
-  return { data, error };
+    password,
+  })
+  return { data, error }
 }
 
-// 3. Zabudnuté heslo (odeslanie e-mailu)
-export async function handleResetPassword(email) {
-  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/update-password`,
-  });
-  return { data, error };
+export async function resetPassword(email: any) {
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email)
+  return { data, error }
 }
 
-// 4. Zmena hesla po kliknutí na link z mailu
-export async function handleUpdatePassword(newPassword) {
+export async function updatePassword(newPassword: any) {
   const { data, error } = await supabase.auth.updateUser({
-    password: newPassword
-  });
-  return { data, error };
+    password: newPassword,
+  })
+  return { data, error }
 }
