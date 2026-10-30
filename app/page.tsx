@@ -1363,6 +1363,33 @@ function AdminDashboard({ catalog, setCatalog, allUsers, setAllUsers, setNotific
   const [editEmail, setEditEmail] = useState('');
   const [editRole, setEditRole] = useState('user');
 
+  // Handler: Nahranie súboru z PC na Node.js Server (Krok 3)
+  const handleUploadToServer = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('video', file);
+
+    try {
+      const response = await fetch('http://localhost:5000/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (data.success && data.url) {
+        setVideoUrl(data.url);
+        alert('Video bolo úspešne nahraté na server!');
+      } else {
+        alert('Chyba pri nahrávaní videa na server.');
+      }
+    } catch (err) {
+      console.error('Chyba pripojenia k serveru:', err);
+      alert('Nepodarilo sa pripojiť k serveru. Skontrolujte, či beží "node server.js".');
+    }
+  };
+
   // Handler: Odoslanie oznamu
   const handleSendNotification = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1620,7 +1647,7 @@ function AdminDashboard({ catalog, setCatalog, allUsers, setAllUsers, setNotific
         )}
       </div>
 
-      {/* 3. FORMULÁR PRE PRIDANIE OBSAHU */}
+      {/* 3. FORMULÁR PRE PRIDANIE OBSAHU (KROK 3: NAHRÁVANIE Z PC NA SERVER) */}
       <div className="bg-[#181820] border border-white/10 p-6 rounded-2xl space-y-4">
         <h3 className="text-lg font-bold text-white flex items-center gap-2">
           <Plus className="w-5 h-5 text-red-500" /> Pridať Nový Film alebo Seriál
@@ -1644,11 +1671,26 @@ function AdminDashboard({ catalog, setCatalog, allUsers, setAllUsers, setNotific
             <select 
               value={type} 
               onChange={(e) => setType(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none"
+              className="w-full bg-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none"
             >
               <option value="movie" className="bg-[#181820]">Film</option>
               <option value="series" className="bg-[#181820]">Seriál</option>
             </select>
+          </div>
+
+          <div>
+            <label className="text-gray-400 block mb-1">Nahrať video súbor z PC (Server)</label>
+            <input 
+              type="file" 
+              accept="video/mp4,video/webm,video/mkv"
+              onChange={handleUploadToServer}
+              className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white focus:outline-none"
+            />
+            {videoUrl ? (
+              <p className="text-[10px] text-emerald-400 mt-1 truncate">✓ Nahrané: {videoUrl}</p>
+            ) : (
+              <p className="text-[10px] text-gray-500 mt-1">Alebo zadajte priamu URL adresu videa nižšie.</p>
+            )}
           </div>
 
           <div>
@@ -1684,7 +1726,7 @@ function AdminDashboard({ catalog, setCatalog, allUsers, setAllUsers, setNotific
             />
           </div>
 
-          <div>
+          <div className="md:col-span-2">
             <label className="text-gray-400 block mb-1">Banner Obrázok URL (16:9)</label>
             <input 
               type="url" 
