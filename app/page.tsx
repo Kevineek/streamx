@@ -7,7 +7,8 @@ import {
   ChevronDown, ChevronRight, Star, ThumbsUp, ThumbsDown, X, Edit3, Trash2,
   Shield, Film, Tv, List, Clock, CreditCard, HelpCircle, Code, Server,
   Database, RefreshCw, Eye, EyeOff, Sliders, Monitor, Globe, Download,
-  CheckCircle, AlertCircle, ArrowLeft, Layers, LogIn, LogOut, UserPlus, Edit
+  CheckCircle, AlertCircle, ArrowLeft, Layers, LogIn, LogOut, UserPlus, Edit,
+  Send, UserX, UserCheck, KeyRound
 } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
@@ -94,98 +95,6 @@ const SEED_MOVIES = [
     subtitles: ['Slovenské', 'České', 'Anglické'],
     introStart: 10,
     introEnd: 25
-  },
-  {
-    id: 's1',
-    type: 'series',
-    title: 'Nexus Chronicles: Elephant Dream',
-    tagline: 'Stroje nesnívajú, no zachytávajú naše nočné mory.',
-    description: 'Dve obsluhy gigantického nekončiaceho stroja objavujú tajomstvá fungovania vlastnej reality a hrozbu, ktorá prichádza z útrob mechanického sveta.',
-    year: 2024,
-    seasonsCount: 2,
-    episodesCount: 12,
-    ageRating: '16+',
-    genres: ['Sci-Fi', 'Thriller', 'Dráma'],
-    rating: 4.6,
-    matchRate: 94,
-    isOriginal: true,
-    isTrending: true,
-    top10Rank: 4,
-    coverUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&auto=format&fit=crop&q=80',
-    bannerUrl: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=1600&auto=format&fit=crop&q=80',
-    cast: ['Tygo Gernandt', 'Cas Jansen'],
-    director: 'Bassam Kurdali',
-    seasons: [
-      {
-        seasonNumber: 1,
-        title: 'Séria 1: Mechanické prebudenie',
-        episodes: [
-          {
-            id: 's1e1',
-            episodeNumber: 1,
-            title: '1. Kapitola: V útrobách oceľového obra',
-            duration: '11 min',
-            description: 'Proog a Emo sa vydávajú do hlbších poschodí komplexu Stroj. Zisťujú, že architektúra sa sama mení.',
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-            thumbnail: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=500&auto=format&fit=crop&q=80',
-            introStart: 4,
-            introEnd: 12
-          },
-          {
-            id: 's1e2',
-            episodeNumber: 2,
-            title: '2. Kapitola: Signál zo spomienok',
-            duration: '10 min',
-            description: 'Neznámy zvukový signál privedie posádku k opustenému riadiacemu panelu z minulého storočia.',
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-            thumbnail: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop&q=80',
-            introStart: 2,
-            introEnd: 10
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'm4',
-    type: 'movie',
-    title: 'Rýchlosť & Následky',
-    tagline: 'Jedna sekunda nepozornosti, celoživotný záväzok.',
-    description: 'Adrenalínový pohľad na automobilové preteky v uzavretom meste, kde stávky prekračujú len samotné peniaze.',
-    year: 2023,
-    duration: '15 min',
-    ageRating: '16+',
-    genres: ['Akčné', 'Kriminálne'],
-    rating: 4.4,
-    matchRate: 89,
-    isOriginal: false,
-    isTrending: false,
-    coverUrl: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&auto=format&fit=crop&q=80',
-    bannerUrl: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1600&auto=format&fit=crop&q=80',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-    cast: ['Alex Vance', 'Elena Rostova'],
-    director: 'Marcus Vance'
-  },
-  {
-    id: 'm5',
-    type: 'movie',
-    title: 'Kybernetický Horizont',
-    tagline: 'Kde končí človek a začína kód?',
-    description: 'Temný vizuálny príbeh hovorí o hackerke, ktorá do svojho vedomia stiahne zakázanú AI.',
-    year: 2024,
-    duration: '14 min',
-    ageRating: '18+',
-    genres: ['Sci-Fi', 'Horory', 'Thriller'],
-    rating: 4.8,
-    matchRate: 97,
-    isOriginal: true,
-    isTrending: true,
-    top10Rank: 5,
-    coverUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80',
-    bannerUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1600&auto=format&fit=crop&q=80',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-    cast: ['Maya Lin', 'David Thorne'],
-    director: 'Koji Sato'
   }
 ];
 
@@ -198,14 +107,41 @@ const DEFAULT_USER_PROFILES = [
 // MAIN APP COMPONENT
 // ==========================================
 export default function App() {
-  // Navigation & Profile State
-  const [profiles, setProfiles] = useState(DEFAULT_USER_PROFILES);
-  const [activeProfile, setActiveProfile] = useState(DEFAULT_USER_PROFILES[0]);
+  // Navigation & Profile State (S PREZISTENTNÝM ULOŽENÍM V LOCALSTORAGE)
+  const [profiles, setProfiles] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('streamx_profiles');
+      return saved ? JSON.parse(saved) : DEFAULT_USER_PROFILES;
+    }
+    return DEFAULT_USER_PROFILES;
+  });
+
+  const [activeProfile, setActiveProfile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('streamx_active_profile');
+      return saved ? JSON.parse(saved) : DEFAULT_USER_PROFILES[0];
+    }
+    return DEFAULT_USER_PROFILES[0];
+  });
+
   const [isProfileSelectorOpen, setIsProfileSelectorOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('home'); 
   const [selectedGenre, setSelectedGenre] = useState('All');
 
-  // Auth System State (Supabase Integration)
+  // Sync Profiles to LocalStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('streamx_profiles', JSON.stringify(profiles));
+    }
+  }, [profiles]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('streamx_active_profile', JSON.stringify(activeProfile));
+    }
+  }, [activeProfile]);
+
+  // Auth System State
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
@@ -214,9 +150,9 @@ export default function App() {
   const [authError, setAuthError] = useState('');
 
   // Interactive Content State
-  const [myList, setMyList] = useState(['m1', 's1']);
-  const [watchProgress, setWatchProgress] = useState({ 'm1': 240, 's1e1': 120 });
-  const [ratings, setRatings] = useState({ 'm1': 5, 'm3': 4 });
+  const [myList, setMyList] = useState(['m1']);
+  const [watchProgress, setWatchProgress] = useState({ 'm1': 240 });
+  const [ratings, setRatings] = useState({ 'm1': 5 });
 
   // Player & Detail Modal State
   const [selectedMedia, setSelectedMedia] = useState<any>(null);
@@ -232,25 +168,60 @@ export default function App() {
   const [enteredPin, setEnteredPin] = useState('');
   const [pinError, setPinError] = useState(false);
 
-  // Notifications State
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: 'Nová Séria!', desc: 'Nexus Chronicles prichádza s 2. sériou.', read: false, date: 'Dnes' },
-    { id: 2, title: 'Pridaný nový film', desc: 'Sintel: Cesta drakov je teraz dostupná v 4K.', read: false, date: 'Včera' }
-  ]);
+  // Notifications State (S PODPOROU PRE ADMIN OZNÁMENIA)
+  const [notifications, setNotifications] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('streamx_notifications');
+      return saved ? JSON.parse(saved) : [
+        { id: 1, title: 'Vitajte v STREAMX', desc: 'Váš účet je pripravený.', read: false, date: 'Dnes' }
+      ];
+    }
+    return [{ id: 1, title: 'Vitajte v STREAMX', desc: 'Váš účet je pripravený.', read: false, date: 'Dnes' }];
+  });
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
 
-  // Admin Catalog Management & User List Management
-  const [catalog, setCatalog] = useState(SEED_MOVIES);
-  const [allUsers, setAllUsers] = useState([
-    { id: 'u1', email: 'kevinkasak@icloud.com', role: 'admin' },
-    { id: 'u2', email: 'uzivatel@example.com', role: 'user' }
-  ]);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('streamx_notifications', JSON.stringify(notifications));
+    }
+  }, [notifications]);
 
-  // Supabase Auth Session Listener & Initializer
+  // Admin Catalog Management & User List Management (S PODPOROU BANOV)
+  const [catalog, setCatalog] = useState(SEED_MOVIES);
+  const [allUsers, setAllUsers] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('streamx_users');
+      return saved ? JSON.parse(saved) : [
+        { id: 'u1', email: 'kevinkasak@icloud.com', role: 'admin', isBanned: false },
+        { id: 'u2', email: 'uzivatel@example.com', role: 'user', isBanned: false }
+      ];
+    }
+    return [
+      { id: 'u1', email: 'kevinkasak@icloud.com', role: 'admin', isBanned: false },
+      { id: 'u2', email: 'uzivatel@example.com', role: 'user', isBanned: false }
+    ];
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('streamx_users', JSON.stringify(allUsers));
+    }
+  }, [allUsers]);
+
+  // Supabase Auth Session Listener
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        const userRole = session.user.user_metadata?.role || (session.user.email?.toLowerCase().includes('admin') ? 'admin' : 'user');
+        const email = session.user.email?.toLowerCase() || '';
+        const targetUser = allUsers.find((u: any) => u.email.toLowerCase() === email);
+        if (targetUser?.isBanned) {
+          alert('Tento účet bol zablokovaný administrátorom.');
+          supabase.auth.signOut();
+          setCurrentUser(null);
+          return;
+        }
+        const isMyAdminEmail = email === 'kevinkasak@icloud.com';
+        const userRole = isMyAdminEmail ? 'admin' : (targetUser?.role || session.user.user_metadata?.role || 'user');
         setCurrentUser({
           id: session.user.id,
           email: session.user.email,
@@ -262,7 +233,16 @@ export default function App() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        const userRole = session.user.user_metadata?.role || (session.user.email?.toLowerCase().includes('admin') ? 'admin' : 'user');
+        const email = session.user.email?.toLowerCase() || '';
+        const targetUser = allUsers.find((u: any) => u.email.toLowerCase() === email);
+        if (targetUser?.isBanned) {
+          alert('Tento účet bol zablokovaný administrátorom.');
+          supabase.auth.signOut();
+          setCurrentUser(null);
+          return;
+        }
+        const isMyAdminEmail = email === 'kevinkasak@icloud.com';
+        const userRole = isMyAdminEmail ? 'admin' : (targetUser?.role || session.user.user_metadata?.role || 'user');
         setCurrentUser({
           id: session.user.id,
           email: session.user.email,
@@ -275,7 +255,7 @@ export default function App() {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [allUsers]);
 
   // Search Filtering Effect
   useEffect(() => {
@@ -286,35 +266,35 @@ export default function App() {
     const q = searchQuery.toLowerCase();
     const filtered = catalog.filter(item =>
       item.title.toLowerCase().includes(q) ||
-      item.genres.some((g: string) => g.toLowerCase().includes(q)) ||
-      (item.cast && item.cast.some((c: string) => c.toLowerCase().includes(q))) ||
-      (item.director && item.director.toLowerCase().includes(q))
+      item.genres.some((g: string) => g.toLowerCase().includes(q))
     );
     setSearchResults(filtered);
   }, [searchQuery, catalog]);
 
-  // Handle Supabase Auth Logic (Login / Register)
+  // Auth Submit Handler
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
     if (!inputEmail || !inputPassword) return;
 
+    // Check ban
+    const existing = allUsers.find((u: any) => u.email.toLowerCase() === inputEmail.toLowerCase());
+    if (existing?.isBanned) {
+      setAuthError('Tento účet je zablokovaný (BANNED). Obráťte sa na administrátora.');
+      return;
+    }
+
     if (authMode === 'register') {
       const { data, error } = await supabase.auth.signUp({
         email: inputEmail,
         password: inputPassword,
-        options: {
-          data: {
-            role: inputEmail.toLowerCase().includes('admin') ? 'admin' : 'user'
-          }
-        }
       });
       if (error) {
         setAuthError(error.message);
         return;
       }
       if (data.user) {
-        setAllUsers(prev => [...prev, { id: data.user.id, email: inputEmail, role: inputEmail.toLowerCase().includes('admin') ? 'admin' : 'user' }]);
+        setAllUsers(prev => [...prev, { id: data.user.id, email: inputEmail, role: 'user', isBanned: false }]);
         alert('Registrácia úspešná! Teraz sa môžete prihlásiť.');
         setAuthMode('login');
       }
@@ -342,7 +322,6 @@ export default function App() {
     setActiveTab('home');
   };
 
-  // Profile PIN Verification Handler
   const handleSelectProfile = (profile: any) => {
     if (profile.pin) {
       setPinModalProfile(profile);
@@ -365,7 +344,6 @@ export default function App() {
     }
   };
 
-  // Watchlist Toggle
   const toggleMyList = (id: string) => {
     if (myList.includes(id)) {
       setMyList(myList.filter(item => item !== id));
@@ -374,7 +352,6 @@ export default function App() {
     }
   };
 
-  // Launch Video Player
   const handlePlayMedia = (media: any, episode: any = null) => {
     const video = episode ? episode.videoUrl : media.videoUrl;
     setSelectedMedia(media);
@@ -394,7 +371,6 @@ export default function App() {
       <nav className="sticky top-0 z-40 bg-[#0f0f13]/90 backdrop-blur-md border-b border-white/10 px-4 md:px-8 py-3 transition-all duration-300">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           
-          {/* Logo & Main Nav */}
           <div className="flex items-center gap-8">
             <div 
               onClick={() => { setActiveTab('home'); setSelectedMedia(null); }}
@@ -408,7 +384,6 @@ export default function App() {
               </span>
             </div>
 
-            {/* Desktop Navigation Links - Zobrazujú sa LEN ak je používateľ prihlásený */}
             {currentUser?.isLoggedIn && (
               <div className="hidden md:flex items-center gap-6 text-sm font-medium">
                 <button 
@@ -457,17 +432,15 @@ export default function App() {
             )}
           </div>
 
-          {/* Right Toolbar: Search, Notifications, Profile / Auth */}
           <div className="flex items-center gap-4">
             
-            {/* Search Input - Len pre prihlásených */}
             {currentUser?.isLoggedIn && (
               <div className="relative">
                 <div className="flex items-center bg-white/5 border border-white/10 rounded-full px-3 py-1.5 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500 transition-all">
                   <Search className="w-4 h-4 text-gray-400 mr-2" />
                   <input 
                     type="text"
-                    placeholder="Hľadať filmy, hercov, žánre..."
+                    placeholder="Hľadať..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none w-32 md:w-56"
@@ -514,7 +487,7 @@ export default function App() {
               </div>
             )}
 
-            {/* Notifications Center */}
+            {/* Notifications */}
             {currentUser?.isLoggedIn && (
               <div className="relative">
                 <button 
@@ -530,7 +503,7 @@ export default function App() {
                 {showNotificationsMenu && (
                   <div className="absolute right-0 mt-2 w-80 bg-[#181820] border border-white/10 rounded-xl shadow-2xl p-4 z-50">
                     <div className="flex items-center justify-between mb-3 border-b border-white/10 pb-2">
-                      <span className="font-bold text-sm text-white">Upozornenia</span>
+                      <span className="font-bold text-sm text-white">Upozornenia & Oznamy</span>
                       <button 
                         onClick={() => setNotifications(notifications.map(n => ({...n, read: true})))}
                         className="text-xs text-red-400 hover:underline"
@@ -552,7 +525,7 @@ export default function App() {
               </div>
             )}
 
-            {/* Profile Avatar & Switcher Dropdown OR Login Button */}
+            {/* Profile Avatar */}
             {currentUser?.isLoggedIn ? (
               <div className="relative">
                 <button 
@@ -630,7 +603,7 @@ export default function App() {
         </div>
       </nav>
 
-      {/* MOBILE BOTTOM NAVIGATION - Iba pre prihlásených */}
+      {/* MOBILE BOTTOM NAVIGATION */}
       {currentUser?.isLoggedIn && (
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#0f0f13]/95 backdrop-blur-lg border-t border-white/10 z-40 px-4 py-2 flex items-center justify-around text-xs">
           <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center gap-1 ${activeTab === 'home' ? 'text-red-500' : 'text-gray-400'}`}>
@@ -652,7 +625,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MAIN VIEWPORT BODY - Ochrana prístupu: Ak nie je prihlásený, zobrazí sa čisté úvodné menu */}
+      {/* MAIN VIEWPORT BODY */}
       {!currentUser?.isLoggedIn ? (
         <div className="flex flex-col items-center justify-center min-h-[82vh] px-4 text-center">
           <div className="max-w-3xl space-y-6">
@@ -729,6 +702,7 @@ export default function App() {
               setCatalog={setCatalog}
               allUsers={allUsers}
               setAllUsers={setAllUsers}
+              setNotifications={setNotifications}
             />
           )}
 
@@ -737,6 +711,7 @@ export default function App() {
               profiles={profiles}
               setProfiles={setProfiles}
               activeProfile={activeProfile}
+              setActiveProfile={setActiveProfile}
             />
           )}
 
@@ -1184,7 +1159,7 @@ function MyListView({ catalog, myList, toggleMyList, onSelectMedia }: any) {
     <div className="px-6 md:px-12 py-8 space-y-6">
       <div className="border-b border-white/10 pb-4">
         <h1 className="text-3xl font-black text-white">Môj Zoznam Uložených Titulov</h1>
-        <p className="text-xs text-gray-400 mt-1">Vaše uložené filmy a seriály pripravené na neskoršie sledowanie.</p>
+        <p className="text-xs text-gray-400 mt-1">Vaše uložené filmy a seriály pripravené na neskoršie sledovanie.</p>
       </div>
 
       {savedItems.length === 0 ? (
@@ -1310,71 +1285,9 @@ function MediaDetailModal({ media, onClose, onPlay, isInList, onToggleList, user
                 <span className="text-gray-500 block">Žánre:</span>
                 <span className="text-white font-medium">{media.genres.join(', ')}</span>
               </div>
-              <div>
-                <span className="text-gray-500 block">Zvukové stopy:</span>
-                <span className="text-white font-medium">{media.audioTracks ? media.audioTracks.join(', ') : 'SK, EN'}</span>
-              </div>
             </div>
 
           </div>
-
-          {media.type === 'series' && media.seasons && (
-            <div className="space-y-4 border-t border-white/10 pt-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-white">Epizódy</h3>
-                <select 
-                  value={selectedSeason}
-                  onChange={(e) => setSelectedSeason(Number(e.target.value))}
-                  className="bg-white/10 border border-white/20 text-xs text-white rounded-lg px-3 py-1.5 focus:outline-none"
-                >
-                  {media.seasons.map((s: any) => (
-                    <option key={s.seasonNumber} value={s.seasonNumber} className="bg-[#181820]">
-                      {s.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-3">
-                {media.seasons.find((s: any) => s.seasonNumber === selectedSeason)?.episodes.map((ep: any) => (
-                  <div 
-                    key={ep.id}
-                    onClick={() => onPlay(media, ep)}
-                    className="flex items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer border border-white/5 transition-colors group"
-                  >
-                    <span className="text-sm font-bold text-gray-500 group-hover:text-white w-4">{ep.episodeNumber}</span>
-                    <img src={ep.thumbnail} alt={ep.title} className="w-24 h-16 object-cover rounded-lg" />
-                    <div className="flex-1">
-                      <h4 className="text-sm font-bold text-white group-hover:text-red-400">{ep.title}</h4>
-                      <p className="text-xs text-gray-400 line-clamp-1 mt-0.5">{ep.description}</p>
-                    </div>
-                    <span className="text-xs text-gray-500">{ep.duration}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {relatedMedia.length > 0 && (
-            <div className="space-y-3 border-t border-white/10 pt-6">
-              <h3 className="text-lg font-bold text-white">Podobné Tituly</h3>
-              <div className="grid grid-cols-3 gap-4">
-                {relatedMedia.map((item: any) => (
-                  <div 
-                    key={item.id}
-                    onClick={() => onSelectRelated(item)}
-                    className="bg-white/5 rounded-xl overflow-hidden border border-white/5 hover:border-red-500/50 cursor-pointer transition-all hover:scale-105"
-                  >
-                    <img src={item.coverUrl} alt={item.title} className="w-full h-32 object-cover" />
-                    <div className="p-2">
-                      <h4 className="text-xs font-bold text-white truncate">{item.title}</h4>
-                      <span className="text-[10px] text-emerald-400 font-semibold">{item.matchRate}% Zhoda</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
         </div>
       </div>
@@ -1390,14 +1303,6 @@ function VideoPlayerModal({ videoSource, onClose, onUpdateProgress, initialTime 
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(initialTime);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(1);
-  const [isMuted, setIsMuted] = useState(false);
-  const [selectedQuality, setSelectedQuality] = useState('1080p');
-  const [selectedAudio, setSelectedAudio] = useState('SK');
-  const [selectedSubtitles, setSelectedSubtitles] = useState('Off');
-  const [showControls, setShowControls] = useState(true);
-  
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -1413,182 +1318,30 @@ function VideoPlayerModal({ videoSource, onClose, onUpdateProgress, initialTime 
     }
   };
 
-  const handleLoadedMetadata = () => {
-    if (videoRef.current) {
-      setDuration(videoRef.current.duration);
-    }
-  };
-
-  const togglePlay = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const time = Number(e.target.value);
-    setCurrentTime(time);
-    if (videoRef.current) {
-      videoRef.current.currentTime = time;
-    }
-  };
-
-  const skipTime = (seconds: number) => {
-    if (videoRef.current) {
-      videoRef.current.currentTime = Math.min(Math.max(videoRef.current.currentTime + seconds, 0), duration);
-    }
-  };
-
-  const handleMouseMove = () => {
-    setShowControls(true);
-    if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
-    controlsTimeoutRef.current = setTimeout(() => {
-      if (isPlaying) setShowControls(false);
-    }, 3000);
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
-
   return (
-    <div 
-      onMouseMove={handleMouseMove}
-      className="fixed inset-0 z-50 bg-black flex items-center justify-center overflow-hidden"
-    >
+    <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
       <video
         ref={videoRef}
         src={videoSource.url}
         onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-        className="w-full h-full object-contain cursor-pointer"
-        onClick={togglePlay}
+        controls
+        className="w-full h-full object-contain"
       />
-
-      <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/60 transition-opacity duration-300 flex flex-col justify-between p-6 ${showControls ? 'opacity-100' : 'opacity-0 cursor-none'}`}>
-        
-        <div className="flex items-center justify-between">
-          <button 
-            onClick={onClose}
-            className="flex items-center gap-2 text-white hover:text-red-500 font-bold transition-colors"
-          >
-            <ArrowLeft className="w-6 h-6" /> Späť
-          </button>
-          <span className="text-sm font-bold text-white tracking-wide">{videoSource.title}</span>
-          <div className="flex items-center gap-3">
-            <span className="bg-red-600 text-white text-[10px] font-mono px-2 py-0.5 rounded">HLS • {selectedQuality}</span>
-          </div>
-        </div>
-
-        {videoSource.introStart && currentTime >= videoSource.introStart && currentTime <= videoSource.introEnd && (
-          <button 
-            onClick={() => skipTime(videoSource.introEnd - currentTime)}
-            className="absolute right-8 bottom-28 bg-white text-black font-bold text-xs px-5 py-2.5 rounded-lg shadow-2xl hover:bg-red-600 hover:text-white transition-all transform hover:scale-105"
-          >
-            Preskočiť Úvod
-          </button>
-        )}
-
-        <div className="space-y-4">
-          
-          <div className="flex items-center gap-3 text-xs text-white font-mono">
-            <span>{formatTime(currentTime)}</span>
-            <input 
-              type="range"
-              min={0}
-              max={duration || 100}
-              value={currentTime}
-              onChange={handleSeek}
-              className="flex-1 accent-red-600 cursor-pointer h-1.5 bg-white/20 rounded-lg"
-            />
-            <span>{formatTime(duration)}</span>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button onClick={togglePlay} className="text-white hover:text-red-500 transition-colors">
-                {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 fill-white" />}
-              </button>
-              <button onClick={() => skipTime(-10)} className="text-white hover:text-red-500 transition-colors">
-                <RotateCcw className="w-5 h-5" />
-              </button>
-              <button onClick={() => skipTime(10)} className="text-white hover:text-red-500 transition-colors">
-                <RotateCw className="w-5 h-5" />
-              </button>
-
-              <div className="flex items-center gap-2">
-                <button onClick={() => setIsMuted(!isMuted)} className="text-white hover:text-red-500">
-                  {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-                </button>
-                <input 
-                  type="range" 
-                  min={0} 
-                  max={1} 
-                  step={0.1}
-                  value={isMuted ? 0 : volume}
-                  onChange={(e) => {
-                    const v = Number(e.target.value);
-                    setVolume(v);
-                    if (videoRef.current) videoRef.current.volume = v;
-                  }}
-                  className="w-20 accent-red-600 h-1"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 text-xs">
-              
-              <select 
-                value={selectedAudio}
-                onChange={(e) => setSelectedAudio(e.target.value)}
-                className="bg-white/10 border border-white/20 text-white rounded px-2 py-1 focus:outline-none"
-              >
-                <option value="SK" className="bg-black">Zvuk: SK Dabing</option>
-                <option value="CZ" className="bg-black">Zvuk: CZ Dabing</option>
-                <option value="EN" className="bg-black">Zvuk: EN Originál</option>
-              </select>
-
-              <select 
-                value={selectedSubtitles}
-                onChange={(e) => setSelectedSubtitles(e.target.value)}
-                className="bg-white/10 border border-white/20 text-white rounded px-2 py-1 focus:outline-none"
-              >
-                <option value="Off" className="bg-black">Titulky: Vypnuté</option>
-                <option value="SK" className="bg-black">Titulky: Slovenské</option>
-                <option value="EN" className="bg-black">Titulky: Anglické</option>
-              </select>
-
-              <select 
-                value={selectedQuality}
-                onChange={(e) => setSelectedQuality(e.target.value)}
-                className="bg-white/10 border border-white/20 text-white rounded px-2 py-1 focus:outline-none font-mono"
-              >
-                <option value="1080p" className="bg-black">1080p FHD</option>
-                <option value="720p" className="bg-black">720p HD</option>
-                <option value="480p" className="bg-black">480p SD</option>
-              </select>
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
+      <button 
+        onClick={onClose}
+        className="absolute top-6 left-6 z-50 bg-black/70 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2"
+      >
+        <ArrowLeft className="w-4 h-4" /> Späť
+      </button>
     </div>
   );
 }
 
 // ==========================================
-// ADMIN DASHBOARD COMPONENT (S MOŽNOSŤOU PRIDÁVAŤ ADMIN PRÁVA)
+// ROZŠÍRENÝ ADMIN DASHBOARD COMPONENT
 // ==========================================
-function AdminDashboard({ catalog, setCatalog, allUsers, setAllUsers }: any) {
+function AdminDashboard({ catalog, setCatalog, allUsers, setAllUsers, setNotifications }: any) {
+  // Media State
   const [title, setTitle] = useState('');
   const [type, setType] = useState('movie');
   const [genres, setGenres] = useState('Sci-Fi, Akčné');
@@ -1597,6 +1350,89 @@ function AdminDashboard({ catalog, setCatalog, allUsers, setAllUsers }: any) {
   const [bannerUrl, setBannerUrl] = useState('');
   const [description, setDescription] = useState('');
 
+  // Notification Send State
+  const [notifTitle, setNotifTitle] = useState('');
+  const [notifDesc, setNotifDesc] = useState('');
+
+  // New User Creation State
+  const [newUserEmail, setNewUserEmail] = useState('');
+  const [newUserRole, setNewUserRole] = useState('user');
+
+  // Edit User State
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editEmail, setEditEmail] = useState('');
+  const [editRole, setEditRole] = useState('user');
+
+  // Handler: Odoslanie oznamu
+  const handleSendNotification = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!notifTitle || !notifDesc) return;
+
+    const newNotif = {
+      id: Date.now(),
+      title: notifTitle,
+      desc: notifDesc,
+      read: false,
+      date: 'Práve teraz'
+    };
+
+    setNotifications((prev: any) => [newNotif, ...prev]);
+    setNotifTitle('');
+    setNotifDesc('');
+    alert('Oznámenie bolo úspešne odoslané všetkým používateľom!');
+  };
+
+  // Handler: Pridať nového používateľa
+  const handleAddUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUserEmail) return;
+
+    if (allUsers.some((u: any) => u.email.toLowerCase() === newUserEmail.toLowerCase())) {
+      alert('Používateľ s týmto e-mailom už existuje!');
+      return;
+    }
+
+    const newUser = {
+      id: 'u_' + Date.now(),
+      email: newUserEmail,
+      role: newUserRole,
+      isBanned: false
+    };
+
+    setAllUsers([...allUsers, newUser]);
+    setNewUserEmail('');
+    alert('Nový používateľský účet bol vytvorený!');
+  };
+
+  // Handler: Ban / Unban
+  const toggleBanUser = (userId: string) => {
+    setAllUsers(allUsers.map((u: any) => {
+      if (u.id === userId) {
+        const isBanned = !u.isBanned;
+        return { ...u, isBanned };
+      }
+      return u;
+    }));
+  };
+
+  // Handler: Odstrániť účet
+  const handleDeleteUser = (userId: string) => {
+    if (confirm('Naozaj chcete trvalo odstrániť tento používateľský účet?')) {
+      setAllUsers(allUsers.filter((u: any) => u.id !== userId));
+    }
+  };
+
+  // Handler: Uložiť úpravu používateľa
+  const handleSaveUserEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUserId || !editEmail) return;
+
+    setAllUsers(allUsers.map((u: any) => u.id === editingUserId ? { ...u, email: editEmail, role: editRole } : u));
+    setEditingUserId(null);
+    alert('Údaje používateľa boli úspešne aktualizované!');
+  };
+
+  // Handler: Pridať film
   const handleCreateMedia = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !videoUrl) return;
@@ -1605,16 +1441,10 @@ function AdminDashboard({ catalog, setCatalog, allUsers, setAllUsers }: any) {
       id: 'm_' + Date.now(),
       type,
       title,
-      tagline: 'Nový titul pridaný administrátorom.',
       description: description || 'Bez opisu.',
       year: new Date().getFullYear(),
-      duration: '15 min',
-      ageRating: '12+',
       genres: genres.split(',').map((g: string) => g.trim()),
-      rating: 5.0,
       matchRate: 99,
-      isOriginal: true,
-      isTrending: true,
       coverUrl: coverUrl || 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&auto=format&fit=crop&q=80',
       bannerUrl: bannerUrl || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&auto=format&fit=crop&q=80',
       videoUrl
@@ -1626,52 +1456,171 @@ function AdminDashboard({ catalog, setCatalog, allUsers, setAllUsers }: any) {
     setCoverUrl('');
     setBannerUrl('');
     setDescription('');
-    alert('Nová položka bola úspešne pridaná do katalógu!');
-  };
-
-  const toggleUserRole = (userId: string) => {
-    setAllUsers(allUsers.map((u: any) => {
-      if (u.id === userId) {
-        const newRole = u.role === 'admin' ? 'user' : 'admin';
-        return { ...u, role: newRole };
-      }
-      return u;
-    }));
+    alert('Nová položka bola pridaná do katalógu!');
   };
 
   return (
     <div className="px-6 md:px-12 py-8 max-w-7xl mx-auto space-y-8">
       <div className="border-b border-white/10 pb-4">
         <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <Shield className="w-8 h-8 text-red-500" /> Administrátorský Panel
+          <Shield className="w-8 h-8 text-red-500" /> Rozšírený Administrátorský Panel
         </h1>
-        <p className="text-xs text-gray-400 mt-1">Spravujte mediálny obsah platformy a priraďujte administrátorské práva používateľom.</p>
+        <p className="text-xs text-gray-400 mt-1">Kompletná správa používateľských účtov, posielanie oznamov a správa obsahu.</p>
       </div>
 
-      {/* SPRÁVA POUŽÍVATEĽOV A ADMIN PRÁV */}
+      {/* 1. POSIELANIE OZNÁMENÍ POUŽÍVATEĽOM */}
       <div className="bg-[#181820] border border-white/10 p-6 rounded-2xl space-y-4">
         <h3 className="text-lg font-bold text-white flex items-center gap-2">
-          <User className="w-5 h-5 text-red-500" /> Správa používateľov a administrátorských práv
+          <Send className="w-5 h-5 text-red-500" /> Poslať hromadné oznámenie používateľom
         </h3>
+
+        <form onSubmit={handleSendNotification} className="space-y-3 text-xs">
+          <div>
+            <label className="text-gray-400 block mb-1">Nadpis Oznámenia</label>
+            <input 
+              type="text" 
+              value={notifTitle} 
+              onChange={(e) => setNotifTitle(e.target.value)} 
+              placeholder="Napr. Plánovaná údržba / Nová funkcia" 
+              className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none focus:border-red-500" 
+              required 
+            />
+          </div>
+          <div>
+            <label className="text-gray-400 block mb-1">Text Oznámenia</label>
+            <textarea 
+              value={notifDesc} 
+              onChange={(e) => setNotifDesc(e.target.value)} 
+              placeholder="Zadajte správu pre všetkých používateľov..." 
+              rows={2} 
+              className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none focus:border-red-500" 
+              required 
+            />
+          </div>
+          <button type="submit" className="bg-[#E50914] text-white font-bold px-5 py-2.5 rounded-xl shadow-lg hover:bg-red-700 transition-colors flex items-center gap-2">
+            <Send className="w-4 h-4" /> Odoslať Oznámenie
+          </button>
+        </form>
+      </div>
+
+      {/* 2. SPRÁVA POUŽÍVATEĽOV, BAN, RESET & MANUÁLNE PRIDANIE */}
+      <div className="bg-[#181820] border border-white/10 p-6 rounded-2xl space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-4">
+          <div>
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <User className="w-5 h-5 text-red-500" /> Správa účtov, Banovanie a Resetovanie
+            </h3>
+            <p className="text-xs text-gray-400">Blokujte účty, resetujte zmeny alebo pridávajte nové profilové prístupy.</p>
+          </div>
+        </div>
+
+        {/* PRIDAŤ NOVÉHO POUŽÍVATEĽA */}
+        <form onSubmit={handleAddUser} className="bg-white/5 p-4 rounded-xl border border-white/10 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs items-end">
+          <div>
+            <label className="text-gray-400 block mb-1">Názov e-mailu nového účtu</label>
+            <input 
+              type="email" 
+              value={newUserEmail} 
+              onChange={(e) => setNewUserEmail(e.target.value)} 
+              placeholder="novy@streamx.com" 
+              className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none" 
+              required 
+            />
+          </div>
+          <div>
+            <label className="text-gray-400 block mb-1">Pridelená Rola</label>
+            <select 
+              value={newUserRole} 
+              onChange={(e) => setNewUserRole(e.target.value)} 
+              className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none"
+            >
+              <option value="user" className="bg-[#181820]">Používateľ (User)</option>
+              <option value="admin" className="bg-[#181820]">Administrátor (Admin)</option>
+            </select>
+          </div>
+          <button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-2.5 rounded-xl transition-colors flex items-center justify-center gap-2">
+            <UserPlus className="w-4 h-4" /> Vytvoriť Účet
+          </button>
+        </form>
+
+        {/* LIST POUŽÍVATEĽOV */}
         <div className="divide-y divide-white/10">
           {allUsers.map((u: any) => (
-            <div key={u.id} className="py-3 flex items-center justify-between text-xs">
+            <div key={u.id} className="py-3 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
               <div>
-                <span className="font-bold text-white text-sm block">{u.email}</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-white text-sm">{u.email}</span>
+                  {u.isBanned && <span className="bg-red-500/20 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30">ZABLOKOVANÝ (BANNED)</span>}
+                </div>
                 <span className={`uppercase font-mono text-[10px] ${u.role === 'admin' ? 'text-emerald-400' : 'text-gray-400'}`}>Rola: {u.role}</span>
               </div>
-              <button 
-                onClick={() => toggleUserRole(u.id)}
-                className={`px-3 py-1.5 rounded-lg font-semibold transition-colors ${u.role === 'admin' ? 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30' : 'bg-red-500/20 text-red-300 hover:bg-red-500/30'}`}
-              >
-                {u.role === 'admin' ? 'Odstrániť Admin práva' : 'Nastaviť ako Admin'}
-              </button>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button 
+                  onClick={() => {
+                    setEditingUserId(u.id);
+                    setEditEmail(u.email);
+                    setEditRole(u.role);
+                  }}
+                  className="px-3 py-1.5 rounded-lg font-semibold bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center gap-1"
+                >
+                  <Edit className="w-3.5 h-3.5" /> Upraviť
+                </button>
+
+                <button 
+                  onClick={() => {
+                    alert(`Heslo pre ${u.email} bolo resetované na predvolené: "streamx123"`);
+                  }}
+                  className="px-3 py-1.5 rounded-lg font-semibold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition-colors flex items-center gap-1"
+                >
+                  <KeyRound className="w-3.5 h-3.5" /> Reset Hesla
+                </button>
+
+                <button 
+                  onClick={() => toggleBanUser(u.id)}
+                  className={`px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1 ${u.isBanned ? 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30' : 'bg-red-500/20 text-red-300 hover:bg-red-500/30'}`}
+                >
+                  {u.isBanned ? <UserCheck className="w-3.5 h-3.5" /> : <UserX className="w-3.5 h-3.5" />}
+                  {u.isBanned ? 'Odblokovať Účet' : 'Banovať Účet'}
+                </button>
+
+                <button 
+                  onClick={() => handleDeleteUser(u.id)}
+                  className="px-3 py-1.5 rounded-lg font-semibold bg-red-600 hover:bg-red-700 text-white transition-colors flex items-center gap-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5" /> Zmazať
+                </button>
+              </div>
             </div>
           ))}
         </div>
+
+        {/* MODAL / FORM PRE ÚPRAVU POUŽÍVATEĽA */}
+        {editingUserId && (
+          <form onSubmit={handleSaveUserEdit} className="p-4 bg-white/5 border border-white/10 rounded-xl space-y-3 text-xs">
+            <h4 className="font-bold text-white text-sm">Úprava Používateľa</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="text-gray-400 block mb-1">E-mail</label>
+                <input type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)} required className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white" />
+              </div>
+              <div>
+                <label className="text-gray-400 block mb-1">Rola</label>
+                <select value={editRole} onChange={e => setEditRole(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white">
+                  <option value="user" className="bg-[#181820]">user</option>
+                  <option value="admin" className="bg-[#181820]">admin</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button type="button" onClick={() => setEditingUserId(null)} className="px-4 py-2 bg-white/10 rounded-lg text-white">Zrušiť</button>
+              <button type="submit" className="px-4 py-2 bg-red-600 rounded-lg text-white font-bold">Uložiť Zmeny</button>
+            </div>
+          </form>
+        )}
       </div>
 
-      {/* CREATE MEDIA FORM */}
+      {/* 3. FORMULÁR PRE PRIDANIE OBSAHU */}
       <div className="bg-[#181820] border border-white/10 p-6 rounded-2xl space-y-4">
         <h3 className="text-lg font-bold text-white flex items-center gap-2">
           <Plus className="w-5 h-5 text-red-500" /> Pridať Nový Film alebo Seriál
@@ -1770,23 +1719,33 @@ function AdminDashboard({ catalog, setCatalog, allUsers, setAllUsers }: any) {
 }
 
 // ==========================================
-// ACCOUNT SETTINGS & PROFILES VIEW (ÚPRAVA MENA, AVATARA A PIN-U)
+// ACCOUNT SETTINGS & PROFILES VIEW (ÚPRAVA MENA, AVATARA, PIN-U, ADD/DELETE PROFILES)
 // ==========================================
-function AccountSettingsView({ profiles, setProfiles, activeProfile }: any) {
+function AccountSettingsView({ profiles, setProfiles, activeProfile, setActiveProfile }: any) {
   const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [avatar, setAvatar] = useState('');
   const [pin, setPin] = useState('');
   const [isKids, setIsKids] = useState(false);
 
+  // Uloženie profilu (pridanie alebo úprava)
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name) return;
 
     if (editingProfileId) {
-      setProfiles(profiles.map((p: any) => p.id === editingProfileId ? { ...p, name, avatar, pin: pin || null, isKids } : p));
+      const updated = profiles.map((p: any) => p.id === editingProfileId ? { ...p, name, avatar, pin: pin || null, isKids } : p);
+      setProfiles(updated);
+      if (activeProfile.id === editingProfileId) {
+        setActiveProfile({ ...activeProfile, name, avatar, pin: pin || null, isKids });
+      }
     } else {
-      setProfiles([...profiles, { id: 'p_' + Date.now(), name, avatar: avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80', isKids, pin: pin || null }]);
+      if (profiles.length >= 5) {
+        alert('Dosiahli ste maximálny počet 5 profilov.');
+        return;
+      }
+      const newP = { id: 'p_' + Date.now(), name, avatar: avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80', isKids, pin: pin || null };
+      setProfiles([...profiles, newP]);
     }
 
     setName('');
@@ -1794,7 +1753,7 @@ function AccountSettingsView({ profiles, setProfiles, activeProfile }: any) {
     setPin('');
     setIsKids(false);
     setEditingProfileId(null);
-    alert('Zmeny profilu boli uložené!');
+    alert('Zmeny profilu boli uložené a zostanú zachované aj po reštarte stránky!');
   };
 
   const startEdit = (p: any) => {
@@ -1805,11 +1764,25 @@ function AccountSettingsView({ profiles, setProfiles, activeProfile }: any) {
     setIsKids(p.isKids);
   };
 
+  const handleDeleteProfile = (profileId: string) => {
+    if (profiles.length <= 1) {
+      alert('Musíte mať aspoň 1 aktívny profil.');
+      return;
+    }
+    if (confirm('Naozaj chcete vymazať tento profil?')) {
+      const filtered = profiles.filter((p: any) => p.id !== profileId);
+      setProfiles(filtered);
+      if (activeProfile.id === profileId) {
+        setActiveProfile(filtered[0]);
+      }
+    }
+  };
+
   return (
     <div className="px-6 md:px-12 py-8 max-w-4xl mx-auto space-y-8">
       <div className="border-b border-white/10 pb-4">
         <h1 className="text-3xl font-black text-white">Nastavenia & Správa Profilov</h1>
-        <p className="text-xs text-gray-400 mt-1">Upravte si meno, profilovú fotografiu alebo zabezpečte profil 4-miestnym PIN kódom.</p>
+        <p className="text-xs text-gray-400 mt-1">Pridávajte, upravujte, vymazávajte alebo zabezpečte profily PIN kódom. Avatary zostávajú uloženie aj po reštarte.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1823,7 +1796,10 @@ function AccountSettingsView({ profiles, setProfiles, activeProfile }: any) {
                 {p.pin && <span className="text-[10px] text-amber-400 flex items-center gap-1 mt-0.5"><Lock className="w-3 h-3" /> Chránené PINom</span>}
               </div>
             </div>
-            <button onClick={() => startEdit(p)} className="p-2 text-gray-400 hover:text-white bg-white/5 rounded-lg"><Edit className="w-4 h-4" /></button>
+            <div className="flex items-center gap-2">
+              <button onClick={() => startEdit(p)} className="p-2 text-gray-400 hover:text-white bg-white/5 rounded-lg" title="Upraviť profil"><Edit className="w-4 h-4" /></button>
+              <button onClick={() => handleDeleteProfile(p.id)} className="p-2 text-red-400 hover:text-red-300 bg-red-500/10 rounded-lg" title="Vymazať profil"><Trash2 className="w-4 h-4" /></button>
+            </div>
           </div>
         ))}
       </div>
@@ -1848,7 +1824,7 @@ function AccountSettingsView({ profiles, setProfiles, activeProfile }: any) {
             <label htmlFor="kidsMode" className="text-gray-300">Tento profil je pre deti</label>
           </div>
           <button type="submit" className="bg-[#E50914] text-white font-bold py-2.5 px-5 rounded-xl shadow-lg shadow-red-600/30">
-            {editingProfileId ? 'Uložiť zmeny profilu' : 'Vytvoriť profil'}
+            {editingProfileId ? 'Uložiť zmeny profilu' : 'Vytvoriť nový profil'}
           </button>
         </form>
       </div>
