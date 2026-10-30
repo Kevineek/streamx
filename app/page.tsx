@@ -188,6 +188,18 @@ export default function App() {
 
   // Admin Catalog Management & User List Management (S PODPOROU BANOV)
   const [catalog, setCatalog] = useState(SEED_MOVIES);
+
+  // Načítanie filmov zo Supabase pri spustení
+  useEffect(() => {
+    const loadMoviesFromDatabase = async () => {
+      const { data, error } = await supabase.from('movies').select('*');
+      if (data && data.length > 0) {
+        setCatalog([...data, ...SEED_MOVIES]);
+      }
+    };
+    loadMoviesFromDatabase();
+  }, []);
+
   const [allUsers, setAllUsers] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('streamx_users');
@@ -1459,13 +1471,12 @@ function AdminDashboard({ catalog, setCatalog, allUsers, setAllUsers, setNotific
     alert('Údaje používateľa boli úspešne aktualizované!');
   };
 
-  // Handler: Pridať film
-  const handleCreateMedia = (e: React.FormEvent) => {
+  // Handler: Pridať film do Supabase databázy
+  const handleCreateMedia = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !videoUrl) return;
 
     const newItem = {
-      id: 'm_' + Date.now(),
       type,
       title,
       description: description || 'Bez opisu.',
@@ -1477,13 +1488,19 @@ function AdminDashboard({ catalog, setCatalog, allUsers, setAllUsers, setNotific
       videoUrl
     };
 
-    setCatalog([newItem, ...catalog]);
-    setTitle('');
-    setVideoUrl('');
-    setCoverUrl('');
-    setBannerUrl('');
-    setDescription('');
-    alert('Nová položka bola pridaná do katalógu!');
+    const { data, error } = await supabase.from('movies').insert([newItem]).select();
+
+    if (error) {
+      alert('Chyba pri ukladaní do databázy: ' + error.message);
+    } else if (data) {
+      setCatalog([data[0], ...catalog]);
+      setTitle('');
+      setVideoUrl('');
+      setCoverUrl('');
+      setBannerUrl('');
+      setDescription('');
+      alert('Film bol úspešne uložený do databázy pre všetkých!');
+    }
   };
 
   return (
@@ -1888,8 +1905,7 @@ function BackendDocsView() {
       </div>
       <section className="bg-[#181820] border border-white/10 p-6 rounded-2xl space-y-3">
         <h3 className="text-lg font-bold text-white flex items-center gap-2">
-          <Server className="w-5 h-5 text-emerald-400" /> 1. Docker & Node.js Rýchle Spustenie
-        </h3>
+          <Server className="w-5 h-5 text-emerald-400" /> 1. Docker & Node.js Rýchle Spustenie</h3>
         <pre className="bg-black/60 p-4 rounded-xl text-xs font-mono text-emerald-400 overflow-x-auto border border-white/5">
 {`git clone https://github.com/streamx/streamx-platform.git
 cd streamx-platform
